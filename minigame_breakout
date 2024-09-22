@@ -1,0 +1,308 @@
+<html>
+<head>
+    <title>Brick Breaker Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #0a0a0a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .game-container {
+            position: relative;
+            width: 880px; /* Increased width by the width of two bricks (60px each + 2px margin each side) */
+            height: 600px;
+            background-color: #0a0a0a;
+        }
+        .brick {
+            width: 60px;
+            height: 20px;
+            margin: 2px;
+            border-radius: 5px;
+            position: absolute;
+        }
+        .row-1 { background-color: #ff4b4b; }
+        .row-2 { background-color: #ffb84b; }
+        .row-3 { background-color: #ffff4b; }
+        .row-4 { background-color: #4bff4b; }
+        .row-5 { background-color: #4b4bff; }
+        .row-6 { background-color: #4bffff; }
+        .ball {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background-color: white;
+            border-radius: 50%;
+            top: 300px;
+            left: 432px; /* Centered the ball */
+        }
+        .paddle {
+            position: absolute;
+            width: 180px; /* Adjusted width to accommodate 9 sections */
+            height: 10px; /* Halved the height */
+            background-color: #b3b3b3;
+            bottom: 60px; /* Adjusted to make space for buttons */
+            left: 350px; /* Centered the paddle */
+            border-radius: 5px;
+            display: flex;
+        }
+        .paddle-section {
+            width: 20px; /* Width matches the new height */
+            height: 100%; /* Full height of the paddle */
+            border-left: 1px solid #0a0a0a;
+            border-right: 1px solid #0a0a0a;
+        }
+        .button-container {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+        }
+        .button {
+            padding: 10px 20px;
+            background-color: #ff4b4b;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .game-over {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 24px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Bricks -->
+        <div class="brick row-1" style="top: 20px; left: 20px;"></div>
+        <div class="brick row-1" style="top: 20px; left: 84px;"></div>
+        <div class="brick row-1" style="top: 20px; left: 148px;"></div>
+        <div class="brick row-1" style="top: 20px; left: 212px;"></div>
+        <div class="brick row-1" style="top: 20px; left: 276px;"></div>
+        <div class="brick row-1" style="top: 20px; left: 340px;"></div>
+        <div class="brick row-1" style="top: 20px; left: 404px;"></div>
+        <div class="brick row-1" style="top: 20px; left: 468px;"></div>
+        <div class="brick row-1" style="top: 20px; left: 532px;"></div>
+        <div class="brick row-1" style="top: 20px; left: 596px;"></div>
+        <div class="brick row-1" style="top: 20px; left: 660px;"></div>
+        <div class="brick row-1" style="top: 20px; left: 724px;"></div>
+        <div class="brick row-1" style="top: 20px; left: 788px;"></div>
+
+        <div class="brick row-2" style="top: 44px; left: 20px;"></div>
+        <div class="brick row-2" style="top: 44px; left: 84px;"></div>
+        <div class="brick row-2" style="top: 44px; left: 148px;"></div>
+        <div class="brick row-2" style="top: 44px; left: 212px;"></div>
+        <div class="brick row-2" style="top: 44px; left: 276px;"></div>
+        <div class="brick row-2" style="top: 44px; left: 340px;"></div>
+        <div class="brick row-2" style="top: 44px; left: 404px;"></div>
+        <div class="brick row-2" style="top: 44px; left: 468px;"></div>
+        <div class="brick row-2" style="top: 44px; left: 532px;"></div>
+        <div class="brick row-2" style="top: 44px; left: 596px;"></div>
+        <div class="brick row-2" style="top: 44px; left: 660px;"></div>
+        <div class="brick row-2" style="top: 44px; left: 724px;"></div>
+        <div class="brick row-2" style="top: 44px; left: 788px;"></div>
+
+        <div class="brick row-3" style="top: 68px; left: 20px;"></div>
+        <div class="brick row-3" style="top: 68px; left: 84px;"></div>
+        <div class="brick row-3" style="top: 68px; left: 148px;"></div>
+        <div class="brick row-3" style="top: 68px; left: 212px;"></div>
+        <div class="brick row-3" style="top: 68px; left: 276px;"></div>
+        <div class="brick row-3" style="top: 68px; left: 340px;"></div>
+        <div class="brick row-3" style="top: 68px; left: 404px;"></div>
+        <div class="brick row-3" style="top: 68px; left: 468px;"></div>
+        <div class="brick row-3" style="top: 68px; left: 532px;"></div>
+        <div class="brick row-3" style="top: 68px; left: 596px;"></div>
+        <div class="brick row-3" style="top: 68px; left: 660px;"></div>
+        <div class="brick row-3" style="top: 68px; left: 724px;"></div>
+        <div class="brick row-3" style="top: 68px; left: 788px;"></div>
+
+        <div class="brick row-4" style="top: 92px; left: 20px;"></div>
+        <div class="brick row-4" style="top: 92px; left: 84px;"></div>
+        <div class="brick row-4" style="top: 92px; left: 148px;"></div>
+        <div class="brick row-4" style="top: 92px; left: 212px;"></div>
+        <div class="brick row-4" style="top: 92px; left: 276px;"></div>
+        <div class="brick row-4" style="top: 92px; left: 340px;"></div>
+        <div class="brick row-4" style="top: 92px; left: 404px;"></div>
+        <div class="brick row-4" style="top: 92px; left: 468px;"></div>
+        <div class="brick row-4" style="top: 92px; left: 532px;"></div>
+        <div class="brick row-4" style="top: 92px; left: 596px;"></div>
+        <div class="brick row-4" style="top: 92px; left: 660px;"></div>
+        <div class="brick row-4" style="top: 92px; left: 724px;"></div>
+        <div class="brick row-4" style="top: 92px; left: 788px;"></div>
+
+        <div class="brick row-5" style="top: 116px; left: 20px;"></div>
+        <div class="brick row-5" style="top: 116px; left: 84px;"></div>
+        <div class="brick row-5" style="top: 116px; left: 148px;"></div>
+        <div class="brick row-5" style="top: 116px; left: 212px;"></div>
+        <div class="brick row-5" style="top: 116px; left: 276px;"></div>
+        <div class="brick row-5" style="top: 116px; left: 340px;"></div>
+        <div class="brick row-5" style="top: 116px; left: 404px;"></div>
+        <div class="brick row-5" style="top: 116px; left: 468px;"></div>
+        <div class="brick row-5" style="top: 116px; left: 532px;"></div>
+        <div class="brick row-5" style="top: 116px; left: 596px;"></div>
+        <div class="brick row-5" style="top: 116px; left: 660px;"></div>
+        <div class="brick row-5" style="top: 116px; left: 724px;"></div>
+        <div class="brick row-5" style="top: 116px; left: 788px;"></div>
+
+        <div class="brick row-6" style="top: 140px; left: 20px;"></div>
+        <div class="brick row-6" style="top: 140px; left: 84px;"></div>
+        <div class="brick row-6" style="top: 140px; left: 148px;"></div>
+        <div class="brick row-6" style="top: 140px; left: 212px;"></div>
+        <div class="brick row-6" style="top: 140px; left: 276px;"></div>
+        <div class="brick row-6" style="top: 140px; left: 340px;"></div>
+        <div class="brick row-6" style="top: 140px; left: 404px;"></div>
+        <div class="brick row-6" style="top: 140px; left: 468px;"></div>
+        <div class="brick row-6" style="top: 140px; left: 532px;"></div>
+        <div class="brick row-6" style="top: 140px; left: 596px;"></div>
+        <div class="brick row-6" style="top: 140px; left: 660px;"></div>
+        <div class="brick row-6" style="top: 140px; left: 724px;"></div>
+        <div class="brick row-6" style="top: 140px; left: 788px;"></div>
+
+        <!-- Ball -->
+        <div class="ball" id="ball"></div>
+        <!-- Paddle -->
+        <div class="paddle" id="paddle">
+            <div class="paddle-section" data-index="0"></div>
+            <div class="paddle-section" data-index="1"></div>
+            <div class="paddle-section" data-index="2"></div>
+            <div class="paddle-section" data-index="3"></div>
+            <div class="paddle-section" data-index="4"></div>
+            <div class="paddle-section" data-index="5"></div>
+            <div class="paddle-section" data-index="6"></div>
+            <div class="paddle-section" data-index="7"></div>
+            <div class="paddle-section" data-index="8"></div>
+        </div>
+        <!-- Button Container -->
+        <div class="button-container">
+            <button class="button" id="pauseButton">Pause</button>
+            <button class="button" id="restartButton">Restart</button>
+        </div>
+        <!-- Game Over Text -->
+        <div class="game-over" id="gameOverText">Game Over</div>
+    </div>
+    <script>
+        const ball = document.getElementById('ball');
+        const paddle = document.getElementById('paddle');
+        const paddleSections = document.querySelectorAll('.paddle-section');
+        const bricks = document.querySelectorAll('.brick');
+        const gameContainer = document.querySelector('.game-container');
+        const pauseButton = document.getElementById('pauseButton');
+        const restartButton = document.getElementById('restartButton');
+        const gameOverText = document.getElementById('gameOverText');
+
+        let ballX = ball.offsetLeft;
+        let ballY = ball.offsetTop;
+        let ballDX = 2;
+        let ballDY = -2;
+
+        let paddleX = paddle.offsetLeft;
+        const paddleWidth = paddle.offsetWidth;
+
+        let isPaused = false;
+        let isGameOver = false;
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isPaused && !isGameOver) {
+                const rect = gameContainer.getBoundingClientRect();
+                paddleX = e.clientX - rect.left - paddleWidth / 2;
+                if (paddleX < 0) paddleX = 0;
+                if (paddleX + paddleWidth > gameContainer.offsetWidth) paddleX = gameContainer.offsetWidth - paddleWidth;
+                paddle.style.left = paddleX + 'px';
+            }
+        });
+
+        pauseButton.addEventListener('click', () => {
+            if (!isGameOver) {
+                isPaused = !isPaused;
+                pauseButton.textContent = isPaused ? 'Resume' : 'Pause';
+                if (!isPaused) {
+                    moveBall();
+                }
+            }
+        });
+
+        restartButton.addEventListener('click', () => {
+            document.location.reload();
+        });
+
+        function onBrickDestroy() {
+            const speedIncreaseFactor = 1.05;
+            const currentSpeed = Math.sqrt(ballDX * ballDX + ballDY * ballDY);
+            const newSpeed = currentSpeed * speedIncreaseFactor;
+            const angle = Math.atan2(ballDY, ballDX);
+            ballDX = newSpeed * Math.cos(angle);
+            ballDY = newSpeed * Math.sin(angle);
+        }
+
+        function moveBall() {
+            if (!isPaused && !isGameOver) {
+                ballX += ballDX;
+                ballY += ballDY;
+
+                if (ballX < 0 || ballX + ball.offsetWidth > gameContainer.offsetWidth) {
+                    ballDX = -ballDX;
+                }
+                if (ballY < 0) {
+                    ballDY = -ballDY;
+                }
+                if (ballY + ball.offsetHeight > gameContainer.offsetHeight) {
+                    isGameOver = true;
+                    gameOverText.style.display = 'block';
+                    return;
+                }
+
+                if (ballY + ball.offsetHeight > paddle.offsetTop && ballX + ball.offsetWidth > paddleX && ballX < paddleX + paddleWidth) {
+                    const sectionWidth = paddleWidth / 9;
+                    const hitSection = Math.floor((ballX - paddleX) / sectionWidth);
+
+                    switch (hitSection) {
+                        case 0:
+                            ballDX = -Math.abs(ballDX) * Math.cos(5 * Math.PI / 180);
+                            ballDY = -Math.abs(ballDY) * Math.sin(5 * Math.PI / 180);
+                            break;
+                        case 4:
+                            ballDX = ballDX === 0 ? 2 : ballDX; // Ensure ballDX is not zero
+                            ballDY = -Math.abs(ballDY);
+                            break;
+                        case 8:
+                            ballDX = Math.abs(ballDX) * Math.cos(5 * Math.PI / 180);
+                            ballDY = -Math.abs(ballDY) * Math.sin(5 * Math.PI / 180);
+                            break;
+                        default:
+                            ballDY = -ballDY;
+                            break;
+                    }
+                }
+
+                bricks.forEach(brick => {
+                    if (!brick.classList.contains('hidden')) {
+                        const brickRect = brick.getBoundingClientRect();
+                        const ballRect = ball.getBoundingClientRect();
+                        if (ballRect.left < brickRect.right && ballRect.right > brickRect.left && ballRect.top < brickRect.bottom && ballRect.bottom > brickRect.top) {
+                            ballDY = -ballDY;
+                            brick.classList.add('hidden');
+                            onBrickDestroy();
+                        }
+                    }
+                });
+
+                ball.style.left = ballX + 'px';
+                ball.style.top = ballY + 'px';
+
+                requestAnimationFrame(moveBall);
+            }
+        }
+
+        moveBall();
+    </script>
+</body>
+</html>
