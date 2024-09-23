@@ -1,0 +1,197 @@
+<html>
+<head>
+    <script src="https://unpkg.com/react/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #3A4A4F;
+        }
+        .circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+        }
+        .blue-circle {
+            background-color: #00AEEF;
+        }
+        .black-circle {
+            background-color: #000000;
+        }
+        .dial {
+            width: 100px;
+            height: 100px;
+            background-image: url('https://placehold.co/100x100');
+            background-size: cover;
+            position: relative;
+        }
+        .line {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 4px;
+            height: 100%;
+            transform: translateX(-50%);
+        }
+    </style>
+</head>
+<body>
+    <div id="root" class="flex items-center justify-center h-screen">
+        <div class="flex items-center space-x-4">
+            <div class="circle blue-circle"></div>
+            <div class="flex flex-col items-center">
+                <div class="dial">
+                    <div class="line" id="lineA"></div>
+                </div>
+                <div class="mt-2 bg-white px-2 py-1 text-black">A</div>
+            </div>
+            <div class="flex flex-col items-center">
+                <div class="dial">
+                    <div class="line" id="lineJ"></div>
+                </div>
+                <div class="mt-2 bg-white px-2 py-1 text-black">J</div>
+            </div>
+            <div class="flex flex-col items-center">
+                <div class="dial">
+                    <div class="line" id="lineK"></div>
+                </div>
+                <div class="mt-2 bg-white px-2 py-1 text-black">K</div>
+            </div>
+            <div class="flex flex-col items-center">
+                <div class="dial">
+                    <div class="line" id="lineB"></div>
+                </div>
+                <div class="mt-2 bg-white px-2 py-1 text-black">B</div>
+            </div>
+            <div class="circle black-circle"></div>
+        </div>
+    </div>
+    <script type="text/babel">
+        class LockpickGame extends React.Component {
+            constructor(props) {
+                super(props);
+                const keys = this.getRandomKeys();
+                this.state = {
+                    angles: {
+                        [keys[0]]: 0,
+                        [keys[1]]: 0,
+                        [keys[2]]: 0,
+                        [keys[3]]: 0
+                    },
+                    keysPressed: {
+                        [keys[0]]: false,
+                        [keys[1]]: false,
+                        [keys[2]]: false,
+                        [keys[3]]: false
+                    },
+                    rotationSpeeds: {
+                        [keys[0]]: this.getRandomSpeed(),
+                        [keys[1]]: this.getRandomSpeed(),
+                        [keys[2]]: this.getRandomSpeed(),
+                        [keys[3]]: this.getRandomSpeed()
+                    },
+                    completed: false,
+                    keys: keys
+                };
+                this.handleKeyDown = this.handleKeyDown.bind(this);
+                this.handleKeyUp = this.handleKeyUp.bind(this);
+            }
+
+            getRandomKeys() {
+                const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+                for (let i = alphabet.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [alphabet[i], alphabet[j]] = [alphabet[j], alphabet[i]];
+                }
+                return alphabet.slice(0, 4);
+            }
+
+            getRandomSpeed() {
+                return Math.random() * (18 - 9) + 9; // Random speed between 9 and 18 degrees per second
+            }
+
+            componentDidMount() {
+                document.addEventListener('keydown', this.handleKeyDown);
+                document.addEventListener('keyup', this.handleKeyUp);
+                this.interval = setInterval(this.updateAngles.bind(this), 1000 / 30); // 30 FPS
+            }
+
+            componentWillUnmount() {
+                document.removeEventListener('keydown', this.handleKeyDown);
+                document.removeEventListener('keyup', this.handleKeyUp);
+                clearInterval(this.interval);
+            }
+
+            handleKeyDown(event) {
+                const key = event.key.toUpperCase();
+                if (this.state.keys.includes(key)) {
+                    this.setState(prevState => ({
+                        keysPressed: {
+                            ...prevState.keysPressed,
+                            [key]: true
+                        }
+                    }));
+                }
+            }
+
+            handleKeyUp(event) {
+                const key = event.key.toUpperCase();
+                if (this.state.keys.includes(key)) {
+                    this.setState(prevState => ({
+                        keysPressed: {
+                            ...prevState.keysPressed,
+                            [key]: false
+                        }
+                    }));
+                }
+            }
+
+            updateAngles() {
+                this.setState(prevState => {
+                    const newAngles = { ...prevState.angles };
+                    for (const key of this.state.keys) {
+                        if (prevState.keysPressed[key]) {
+                            newAngles[key] = (newAngles[key] + prevState.rotationSpeeds[key] / 30) % 360;
+                        } else if (newAngles[key] > 0) {
+                            newAngles[key] = Math.max(newAngles[key] - 6 / 30, 0);
+                        }
+                    }
+                    return { angles: newAngles };
+                }, this.checkCompletion);
+            }
+
+            checkCompletion() {
+                const { angles } = this.state;
+                const allBlue = this.state.keys.every(key => angles[key] >= 85 && angles[key] <= 95);
+                if (allBlue && !this.state.completed) {
+                    this.setState({ completed: true });
+                }
+            }
+
+            render() {
+                const { angles, completed, keys } = this.state;
+                return (
+                    <div className="flex items-center space-x-4">
+                        <div className="circle blue-circle"></div>
+                        {keys.map(key => (
+                            <div key={key} className="flex flex-col items-center">
+                                <div className="dial">
+                                    <div className="line" style={{ 
+                                        transform: `translateX(-50%) rotate(${angles[key]}deg)`,
+                                        backgroundColor: angles[key] >= 85 && angles[key] <= 95 ? '#00AEEF' : '#000000'
+                                    }}></div>
+                                </div>
+                                <div className="mt-2 bg-white px-2 py-1 text-black">{key}</div>
+                            </div>
+                        ))}
+                        <div className={`circle ${completed ? 'blue-circle' : 'black-circle'}`} id="completionCircle"></div>
+                    </div>
+                );
+            }
+        }
+
+        ReactDOM.render(<LockpickGame />, document.getElementById('root'));
+    </script>
+</body>
+</html>
